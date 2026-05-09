@@ -1,39 +1,57 @@
 const lens = document.getElementById('lens');
-const zh = document.querySelector('.headline .zh');
+const lensText = document.getElementById('lensText');
 const root = document.documentElement;
 
-function updateLens(x, y) {
+const MAX_TILT = 12;
+
+function moveLens(x, y) {
   lens.style.left = x + 'px';
   lens.style.top = y + 'px';
 
-  const rect = zh.getBoundingClientRect();
-  const localX = x - rect.left;
-  const localY = y - rect.top;
-  zh.style.setProperty('--mx', localX + 'px');
-  zh.style.setProperty('--my', localY + 'px');
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
 
-  const size = parseFloat(getComputedStyle(root).getPropertyValue('--lens-size'));
-  zh.style.setProperty('--lens-radius', (size / 2) + 'px');
+  const tx = vw / 2 - x;
+  const ty = vh / 2 - y;
+  lensText.style.setProperty('--tx', tx + 'px');
+  lensText.style.setProperty('--ty', ty + 'px');
+
+  const ry = ((x - vw / 2) / (vw / 2)) * MAX_TILT;
+  const rx = -((y - vh / 2) / (vh / 2)) * MAX_TILT;
+  root.style.setProperty('--ry', ry + 'deg');
+  root.style.setProperty('--rx', rx + 'deg');
 }
 
+function resetTilt() {
+  root.style.setProperty('--ry', '0deg');
+  root.style.setProperty('--rx', '0deg');
+}
+
+function showLens() { lens.classList.add('visible'); }
 function hideLens() {
   lens.classList.remove('visible');
-  zh.style.setProperty('--mx', '-9999px');
-  zh.style.setProperty('--my', '-9999px');
+  resetTilt();
 }
 
 window.addEventListener('mousemove', (e) => {
-  lens.classList.add('visible');
-  updateLens(e.clientX, e.clientY);
+  showLens();
+  moveLens(e.clientX, e.clientY);
 });
 
 window.addEventListener('mouseleave', hideLens);
+window.addEventListener('blur', hideLens);
+
+window.addEventListener('touchstart', (e) => {
+  const t = e.touches[0];
+  if (!t) return;
+  showLens();
+  moveLens(t.clientX, t.clientY);
+}, { passive: true });
 
 window.addEventListener('touchmove', (e) => {
   const t = e.touches[0];
   if (!t) return;
-  lens.classList.add('visible');
-  updateLens(t.clientX, t.clientY);
+  moveLens(t.clientX, t.clientY);
 }, { passive: true });
 
 window.addEventListener('touchend', hideLens);

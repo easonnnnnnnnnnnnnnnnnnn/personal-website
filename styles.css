@@ -2,7 +2,10 @@
   --dot-color: #c9c9c9;
   --dot-size: 2px;
   --dot-gap: 28px;
-  --lens-size: 260px;
+  --lens-size: 280px;
+  --headline-size: clamp(2rem, 7vw, 5.5rem);
+  --rx: 0deg;
+  --ry: 0deg;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -20,7 +23,6 @@ body {
     transparent var(--dot-size)
   );
   background-size: var(--dot-gap) var(--dot-gap);
-  background-position: 0 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   color: #111;
   overflow: hidden;
@@ -28,52 +30,26 @@ body {
 }
 
 .stage {
-  position: relative;
   height: 100vh;
   width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
+  perspective: 900px;
 }
 
 .headline {
-  position: relative;
-  font-size: clamp(2rem, 7vw, 5.5rem);
+  font-size: var(--headline-size);
   font-weight: 700;
   letter-spacing: -0.02em;
   text-align: center;
   line-height: 1.1;
   user-select: none;
-}
-
-.headline .layer {
-  display: block;
-}
-
-.headline .en {
-  position: relative;
-  z-index: 1;
-}
-
-.headline .zh {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-  pointer-events: none;
-  color: #111;
-  -webkit-mask-image: radial-gradient(
-    circle var(--lens-radius, 130px) at var(--mx, -9999px) var(--my, -9999px),
-    #000 98%,
-    transparent 100%
-  );
-  mask-image: radial-gradient(
-    circle var(--lens-radius, 130px) at var(--mx, -9999px) var(--my, -9999px),
-    #000 98%,
-    transparent 100%
-  );
+  white-space: nowrap;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  transition: transform 180ms ease-out;
+  will-change: transform;
 }
 
 .lens {
@@ -85,19 +61,38 @@ body {
   border-radius: 50%;
   background: #000;
   pointer-events: none;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transform: translate(-50%, -50%);
-  mix-blend-mode: difference;
   z-index: 9999;
-  transition: width 120ms ease, height 120ms ease, opacity 200ms ease;
   opacity: 0;
+  transition: opacity 150ms ease;
+  perspective: 900px;
 }
 
 .lens.visible {
   opacity: 1;
 }
 
+.lens-text {
+  color: #ffffff;
+  font-size: var(--headline-size);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  white-space: nowrap;
+  transform: translate(var(--tx, 0px), var(--ty, 0px)) rotateX(var(--rx)) rotateY(var(--ry));
+  will-change: transform;
+}
+
 @media (max-width: 600px) {
   :root {
-    --lens-size: 180px;
+    --lens-size: 200px;
+  }
+  .headline,
+  .lens-text {
+    white-space: normal;
   }
 }
